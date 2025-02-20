@@ -1,5 +1,5 @@
 const express = require("express");
-const db = require("./src/db");
+const db = require("./src/dbase");
 
 const app = express();
 app.use(express.json());
@@ -17,5 +17,5 @@ app.get("/users", (req, res) => {
 // Démarrer le serveur
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+    console.log(`Serveur démarré sur le port ${PORT}`);
 });
