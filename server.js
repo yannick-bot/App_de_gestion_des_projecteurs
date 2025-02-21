@@ -1,18 +1,17 @@
 const express = require("express");
 const db = require("./src/dbase");
+const usersRoute = require("./routes/users");
+const projectorsRoute = require("./routes/projecteurs");
+const reservationsRoute = require("./routes/reservations");
 
 const app = express();
+
 app.use(express.json());
 
-// Route pour récupérer tous les utilisateurs
-app.get("/users", (req, res) => {
-  db.query("SELECT * FROM users", (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(results);
-  });
-});
+app.use('/api', usersRoute);
+app.use('/api', projectorsRoute);
+app.use('/api', reservationsRoute);
+
 
 // Démarrer le serveur
 const PORT = process.env.PORT || 3000;

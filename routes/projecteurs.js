@@ -5,18 +5,18 @@ const router = express.Router();
 
 
 // Récupérer tous les projecteurs
-router.get('/', getAllProjecteurs);
+router.get('/public/projectors', getAllProjecteurs);
 
 // Récupérer un projecteur par ID
-router.get('/:id', getProjecteurById);
+router.get("/public/projectors/:id", getProjecteurById);
 
 // Créer un projecteur
-router.post('/', createProjecteur);
+router.post("/admin/projectors/", createProjecteur);
 
 //  Modifier un projecteur
-router.put('/:id', updateProjecteur);
+router.put("/admin/projectors/:id", updateProjecteur);
 
 // Supprimer un projecteur
-router.delete('/:id', deleteProjecteur);
+router.delete("/admin/projectors/:id", deleteProjecteur);
 
 module.exports = router;
