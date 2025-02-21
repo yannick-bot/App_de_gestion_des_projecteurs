@@ -6,18 +6,18 @@ const router = express.Router();
 // Controller functions (you need to implement these)
 
 // Récupérer tous les utilisateurs
-router.get('/', getAllUsers);
+router.get('/admin/users', getAllUsers);
 
 // Récupérer un utilisateur par ID
-router.get('/:id', getUserById);
+router.get('/admin/users/:id', getUserById);
 
 // Créer un utilisateur
-router.post('/', createUser);
+router.post('/admin/users', createUser);
 
 // Modifier un utilisateur
-router.put('/:id', updateUser);
+router.put('/admin/users/:id', updateUser);
 
 // Delete a user
-router.delete('/:id', deleteUser);
+router.delete('/admin/users/:id', deleteUser);
 
 module.exports = router;

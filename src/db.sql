@@ -6,11 +6,11 @@ USE Gestion_projo;
 
 CREATE TABLE User (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255) NOT NULL,
-    contact VARCHAR(255) NOT NULL,
+    nom VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(255)
 );
 
 CREATE TABLE Projecteur (
@@ -29,3 +29,12 @@ CREATE TABLE Reservation (
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (projecteur_id) REFERENCES Projecteur(id)
 );
+
+
+INSERT Into Projecteur VALUES ("PROJ01", "Moyen", true);
+INSERT Into Projecteur VALUES ("PROJ02", "Bon", true); 
+INSERT Into Projecteur VALUES ("PROJ01", "Mauvais", true); 
+INSERT Into Projecteur VALUES ("PROJ01", "Bon", false); 
+INSERT Into Projecteur VALUES ("PROJ01", "Moyen", false); 
+
+INSERT Into User VALUES ("John", "Doe", "JohnDoe@gmail.com", "John@Admin25", "ADMIN"); 
