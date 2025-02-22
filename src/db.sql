@@ -31,10 +31,10 @@ CREATE TABLE Reservation (
 );
 
 
-INSERT Into Projecteur VALUES ("PROJ01", "Moyen", true);
-INSERT Into Projecteur VALUES ("PROJ02", "Bon", true); 
-INSERT Into Projecteur VALUES ("PROJ01", "Mauvais", true); 
-INSERT Into Projecteur VALUES ("PROJ01", "Bon", false); 
-INSERT Into Projecteur VALUES ("PROJ01", "Moyen", false); 
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ01", "Moyen", true);
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ02", "Bon", true);
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ03", "Mauvais", true);
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ04", "Bon", false);
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ05", "Moyen", false);
 
-INSERT Into User VALUES ("John", "Doe", "JohnDoe@gmail.com", "John@Admin25", "ADMIN"); 
+INSERT INTO User (prenom, nom, email, password, role) VALUES ("John", "Doe", "JohnDoe@gmail.com", "John@Admin25", "ADMIN"); 

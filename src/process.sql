@@ -1,6 +1,6 @@
 -- USER
 
-INSERT INTO User VALUES (?, ?, ?, ?, ?);
+INSERT INTO User (prenom, nom, email, password, role) VALUES (?, ?, ?, ?, ?);
 
 UPDATE User
 SET nom = ?, prenom = ?, contact = ?, email = ?, password = ?
@@ -8,12 +8,11 @@ WHERE id = ? ;
 
 DELETE FROM User WHERE id = ? ;
 
-SELECT email, password FROM User
-WHERE id = ? ;
+SELECT * FROM User;
 
 -- PROJECTEUR
 
-INSERT INTO Projecteur VALUES (?, ?, ?);
+INSERT INTO Projecteur (reference, etat, disponibilite) VALUES (?, ?, ?);
 
 -- Modifier l'etat(disponibilité) d'un projecteur
 UPDATE Projecteur

@@ -1,9 +1,8 @@
 const express = require('express');
-const { getAllUsers, getUserById, createUser, updateUser, deleteUser } = require('../controllers/userController');
+const { getAllUsers, getUserById, createUser, updateUser, deleteUser } = require('../Controllers/UserController.js');
 
 const router = express.Router();
 
-// Controller functions (you need to implement these)
 
 // Récupérer tous les utilisateurs
 router.get('/admin/users', getAllUsers);
