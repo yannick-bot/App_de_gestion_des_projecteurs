@@ -1,64 +1,92 @@
-const express = require('express');
+const express = require("express");
+const db = require('../src/dbConfig');
 
 const router = express.Router();
 
-// Exemple de données de réservation
-let reservations = [
-    { id: 1, user_id: 1, projecteur_id: 101, hDebut: '2023-10-01T10:00:00', hFin: '2023-10-01T12:00:00' },
-    { id: 2, user_id: 2, projecteur_id: 102, hDebut: '2023-10-02T14:00:00', hFin: '2023-10-02T16:00:00' }
-];
-
-// Route pour obtenir toutes les réservations
-router.get('/public/reservations', (req, res) => {
-    res.json(reservations);
-});
-
-// Route pour obtenir une réservation par ID
-router.get("/public/reservations/:id", (req, res) => {
-  const reservation = reservations.find(
-    (r) => r.id === parseInt(req.params.id)
+// Récupérer toutes les réservations
+router.get("/admin/reservations", (req, res) => {
+  db.query(
+    `SELECT Reservation.id, projecteur_id, hDebut, hFin, 
+            User.prenom, User.nom, Projecteur.reference, Projecteur.etat 
+     FROM Reservation
+     JOIN User ON Reservation.user_id = User.id
+     JOIN Projecteur ON Reservation.projecteur_id = Projecteur.id`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
+    }
   );
-  if (!reservation) return res.status(404).send("Réservation non trouvée");
-  res.json(reservation);
 });
 
-// Route pour créer une nouvelle réservation
+
+// Créer une réservation (avec vérification de disponibilité)
 router.post("/public/reservations", (req, res) => {
-  const newReservation = {
-    id: reservations.length + 1,
-    user_id: req.body.user_id,
-    projecteur_id: req.body.projecteur_id,
-    hDebut: req.body.hDebut,
-    hFin: req.body.hFin,
-  };
-  reservations.push(newReservation);
-  res.status(201).json(newReservation);
+  const { user_id, projecteur_id, hDebut, hFin } = req.body;
+
+  // Vérifions si le projecteur est disponible
+  db.query("SELECT disponibilite FROM Projecteur WHERE id = ?", [projecteur_id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ error: "Projecteur introuvable" });
+
+    if (!results[0].disponibilite) {
+      return res.status(400).json({ error: "Le projecteur est déjà réservé" });
+    }
+
+    // Insérer la réservation
+    db.query(
+      "INSERT INTO Reservation (user_id, projecteur_id, hDebut, hFin) VALUES (?, ?, ?, ?)",
+      [user_id, projecteur_id, hDebut, hFin],
+      (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        // Mettre à jour la disponibilité du projecteur
+        db.query(
+          "UPDATE Projecteur SET disponibilite = FALSE WHERE id = ?",
+          [projecteur_id],
+          (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: result.insertId, message: "Réservation effectuée !" });
+          }
+        );
+      }
+    );
+  });
 });
 
-// Route pour mettre à jour une réservation existante
-router.put("/public/reservations/:id", (req, res) => {
-  const reservation = reservations.find(
-    (r) => r.id === parseInt(req.params.id)
-  );
-  if (!reservation) return res.status(404).send("Réservation non trouvée");
+// Mettre à jour une réservation
+router.put("/admin/reservations/:id", (req, res) => {
+  const { user_id, projecteur_id, hDebut, hFin } = req.body;
 
-  reservation.user_id = req.body.user_id;
-  reservation.projecteur_id = req.body.projecteur_id;
-  reservation.hDebut = req.body.hDebut;
-  reservation.hFin = req.body.hFin;
-  res.json(reservation);
+  db.query(
+    "UPDATE Reservation SET user_id = ?, projecteur_id = ?, hDebut = ?, hFin = ? WHERE id = ?",
+    [user_id, projecteur_id, hDebut, hFin, req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Réservation mise à jour avec succès" });
+    }
+  );
 });
 
-// Route pour supprimer une réservation
-router.delete("/public/reservations/:id", (req, res) => {
-  const reservationIndex = reservations.findIndex(
-    (r) => r.id === parseInt(req.params.id)
-  );
-  if (reservationIndex === -1)
-    return res.status(404).send("Réservation non trouvée");
+// Annuler une réservation
+router.delete("/admin/reservations/:id", (req, res) => {
+  // Récupérer le projecteur de la réservation avant suppression
+  db.query("SELECT projecteur_id FROM Reservation WHERE id = ?", [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(404).json({ error: "Réservation non trouvée" });
 
-  const deletedReservation = reservations.splice(reservationIndex, 1);
-  res.json(deletedReservation);
+    const projecteur_id = results[0].projecteur_id;
+
+    // Supprimer la réservation
+    db.query("DELETE FROM Reservation WHERE id = ?", [req.params.id], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      // Libérer le projecteur
+      db.query("UPDATE Projecteur SET disponibilite = TRUE WHERE id = ?", [projecteur_id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Réservation annulée et projecteur libéré" });
+      });
+    });
+  });
 });
 
 module.exports = router;
