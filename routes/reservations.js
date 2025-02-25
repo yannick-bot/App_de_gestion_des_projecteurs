@@ -24,33 +24,44 @@ router.post("/public/reservations", (req, res) => {
   const { user_id, projecteur_id, hDebut, hFin } = req.body;
 
   // Vérifions si le projecteur est disponible
-  db.query("SELECT disponibilite FROM Projecteur WHERE id = ?", [projecteur_id], (err, results) => {
+  // Vérifions s'il reste au moins un projecteur disponible
+  db.query("SELECT id FROM Projecteur WHERE disponibilite = TRUE LIMIT 1", (err, availableProjectors) => {
     if (err) return res.status(500).json({ error: err.message });
-    if (results.length === 0) return res.status(404).json({ error: "Projecteur introuvable" });
-
-    if (!results[0].disponibilite) {
-      return res.status(400).json({ error: "Le projecteur est déjà réservé" });
+    
+    if (availableProjectors.length === 0) {
+      return res.status(400).json({ error: "Aucun projecteur disponible pour le moment" });
     }
 
-    // Insérer la réservation
-    db.query(
-      "INSERT INTO Reservation (user_id, projecteur_id, hDebut, hFin) VALUES (?, ?, ?, ?)",
-      [user_id, projecteur_id, hDebut, hFin],
-      (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
+    // Vérifions si le projecteur choisi est disponible
+    db.query("SELECT disponibilite FROM Projecteur WHERE id = ?", [projecteur_id], (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (results.length === 0) return res.status(404).json({ error: "Projecteur introuvable" });
 
-        // Mettre à jour la disponibilité du projecteur
-        db.query(
-          "UPDATE Projecteur SET disponibilite = FALSE WHERE id = ?",
-          [projecteur_id],
-          (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ id: result.insertId, message: "Réservation effectuée !" });
-          }
-        );
+      if (!results[0].disponibilite) {
+        return res.status(400).json({ error: "Le projecteur est déjà réservé" });
       }
-    );
+
+      // Insérer la réservation
+      db.query(
+        "INSERT INTO Reservation (user_id, projecteur_id, hDebut, hFin) VALUES (?, ?, ?, ?)",
+        [user_id, projecteur_id, hDebut, hFin],
+        (err, result) => {
+          if (err) return res.status(500).json({ error: err.message });
+
+          // Mettre à jour la disponibilité du projecteur
+          db.query(
+            "UPDATE Projecteur SET disponibilite = FALSE WHERE id = ?",
+            [projecteur_id],
+            (err) => {
+              if (err) return res.status(500).json({ error: err.message });
+              res.status(201).json({ id: result.insertId, message: "Réservation effectuée !" });
+            }
+          );
+        }
+      );
+    });
   });
+
 });
 
 // Mettre à jour une réservation

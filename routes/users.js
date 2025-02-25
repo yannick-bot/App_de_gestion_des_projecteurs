@@ -19,4 +19,11 @@ router.put('/admin/users/:id', updateUser);
 // Delete a user
 router.delete('/admin/users/:id', deleteUser);
 
+router.get("/profile", verifyToken, (req, res) => {
+    res.status(200).json({ 
+        message: "Profil de l'utilisateur authentifié",
+        user: req.user
+    });
+});
+
 module.exports = router;
