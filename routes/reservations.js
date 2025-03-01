@@ -1,5 +1,6 @@
 const express = require("express");
 const db = require('../src/dbConfig');
+const { verifyToken } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -17,7 +18,6 @@ router.get("/admin/reservations", (req, res) => {
     }
   );
 });
-
 
 // Créer une réservation (avec vérification de disponibilité)
 router.post("/public/reservations", (req, res) => {
@@ -64,22 +64,8 @@ router.post("/public/reservations", (req, res) => {
 
 });
 
-// Mettre à jour une réservation
-router.put("/admin/reservations/:id", (req, res) => {
-  const { user_id, projecteur_id, hDebut, hFin } = req.body;
-
-  db.query(
-    "UPDATE Reservation SET user_id = ?, projecteur_id = ?, hDebut = ?, hFin = ? WHERE id = ?",
-    [user_id, projecteur_id, hDebut, hFin, req.params.id],
-    (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Réservation mise à jour avec succès" });
-    }
-  );
-});
-
 // Annuler une réservation
-router.delete("/admin/reservations/:id", (req, res) => {
+router.delete("/admin/reservations/:id", verifyToken, (req, res) => {
   // Récupérer le projecteur de la réservation avant suppression
   db.query("SELECT projecteur_id FROM Reservation WHERE id = ?", [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });

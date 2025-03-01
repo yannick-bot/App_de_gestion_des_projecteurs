@@ -1,10 +1,9 @@
 const express = require("express");
-const db = require("./src/dbConfig");
 const registerRoute = require("./routes/register");
 const loginRoute = require("./routes/login");
 const reservationsRoute = require("./routes/reservations");
 const projecteursRoute = require("./routes/projecteurs");
-const verifyToken = require("./middlewares/auth");
+const verifyToken = require("./middlewares/auth").verifyToken;
 const app = express();
 
 app.use(express.json());
