@@ -36,7 +36,7 @@ router.post("/admin/projectors", verifyToken, [
 });
 
 // Mettre à jour un projecteur
-router.put("/admin/projectors/:id", verifyToken, [
+router.put("/admin/projectors/:id",  [
   body('reference').notEmpty().withMessage('Veuillez mentionner la référence du projecteur'),
   body('etat').notEmpty().withMessage('Veuillez mentionner l\'état du projecteur'), 
   body('disponibilite').notEmpty().withMessage('Veuillez mentionner la disponibilité du projecteur')
@@ -58,7 +58,7 @@ router.put("/admin/projectors/:id", verifyToken, [
 });
 
 // Supprimer un projecteur
-router.delete("/admin/projectors/:id", verifyToken, (req, res) => {
+router.delete("/admin/projectors/:id", (req, res) => {
   connexion.query("DELETE FROM Projecteur WHERE id = ?", [req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: "Projecteur supprimé avec succès" });
