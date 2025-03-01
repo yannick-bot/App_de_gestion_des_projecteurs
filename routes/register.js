@@ -25,9 +25,22 @@ const userSchema = Joi.object({
     .required(),
   password: Joi.string()
     .trim()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$"))
-    .message('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.')
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$"
+      )
+    )
+    .message(
+      "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial."
+    )
     .required(),
+  role: Joi.string()
+    .trim()
+    .valid("ADMIN", "PROF", "USER") // Limite les valeurs possibles du rôle
+    .default("USER") // Définit une valeur par défaut si le champ est absent
+    .messages({
+      "any.only": "Le rôle doit être ADMIN, PROF ou USER",
+    }),
 });
 
 
@@ -39,7 +52,7 @@ router.post('/public/register', async function (req, res) {
   }
 
   // on récupère l'email et le mot de passe
-  const { prenom, nom, email, password } = req.body;
+  const { prenom, nom, email, password, role} = req.body;
   //on hache le mot de passe avec bcrypt
   const hash = await bcrypt.hash(password, saltRounds);
   // on vérifie si l'email et le mot de passe sont déja pris
@@ -55,10 +68,10 @@ router.post('/public/register', async function (req, res) {
   }
   // on sauvegarde le user en base de données
   const query =
-    "INSERT INTO User (prenom, nom, email, password) VALUES (?, ?, ?, ?)";
+    "INSERT INTO User (prenom, nom, email, password, role) VALUES (?, ?, ?, ?, ?)";
   const [result] = await connection
     .promise()
-    .query(query, [prenom, nom, email, hash]);
+    .query(query, [prenom, nom, email, hash, role]);
 
   if (result.affectedRows === 1) {
     res.json({ message: "Successfully registered" });

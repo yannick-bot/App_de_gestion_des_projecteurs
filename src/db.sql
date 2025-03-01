@@ -36,5 +36,3 @@ INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ02", "Bon",
 INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ03", "Mauvais", true);
 INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ04", "Bon", false);
 INSERT INTO Projecteur (reference, etat, disponibilite) VALUES ("PROJ05", "Moyen", false);
-
-INSERT INTO User (prenom, nom, email, password, role) VALUES ("John", "Doe", "JohnDoe@gmail.com", "John@Admin25", "ADMIN"); 
